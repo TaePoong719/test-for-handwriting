@@ -6,18 +6,19 @@ import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.nex3z.tflite.mnist.classifier.Classifier
-
 import com.nex3z.tflite.mnist.classifier.Recognition
-import kotlinx.android.synthetic.main.activity_main.*
+import com.nex3z.tflite.mnist.databinding.ActivityMainBinding
 import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var classifier: Classifier
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         init()
     }
 
@@ -37,20 +38,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initView() {
-        btn_detect.setOnClickListener { onDetectClick() }
-        btn_clear.setOnClickListener { clearResult() }
+        binding.btnDetect.setOnClickListener { onDetectClick() }
+        binding.btnClear.setOnClickListener { clearResult() }
     }
 
     private fun onDetectClick() {
         if (!this::classifier.isInitialized) {
             Log.e(LOG_TAG, "onDetectClick(): Classifier is not initialized")
             return
-        } else if (fpv_paint.isEmpty) {
+        } else if (binding.fpvPaint.isEmpty) {
             Toast.makeText(this, R.string.please_write_a_digit, Toast.LENGTH_SHORT).show()
             return
         }
 
-        val image: Bitmap = fpv_paint.exportToBitmap(
+        val image: Bitmap = binding.fpvPaint.exportToBitmap(
             classifier.inputShape.width, classifier.inputShape.height
         )
         val result = classifier.classify(image)
@@ -58,24 +59,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun renderResult(result: Recognition) {
-        tv_prediction.text = java.lang.String.valueOf(result.label)
-        tv_probability.text = java.lang.String.valueOf(result.confidence)
-        tv_timecost.text = java.lang.String.format(
+        binding.tvPrediction.text = java.lang.String.valueOf(result.label)
+        binding.tvProbability.text = java.lang.String.valueOf(result.confidence)
+        binding.tvTimecost.text = java.lang.String.format(
             getString(R.string.timecost_value),
             result.timeCost
         )
     }
 
     private fun clearResult() {
-        fpv_paint.clear()
-        tv_prediction.setText(R.string.empty)
-        tv_probability.setText(R.string.empty)
-        tv_timecost.setText(R.string.empty)
+        binding.fpvPaint.clear()
+        binding.tvPrediction.setText(R.string.empty)
+        binding.tvProbability.setText(R.string.empty)
+        binding.tvTimecost.setText(R.string.empty)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-//        classifier.close()
+        // classifier.close()
     }
 
     companion object {
